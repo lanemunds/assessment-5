@@ -235,19 +235,20 @@ module.exports = {
     },
     getCountries : (req,res)=>{
       sequelize.query(`
-      select * from countries
-      `)  .then(dbRes => {
+      select * from countries;
+      `)  .then((dbRes) => {
         res.status(200).send(dbRes[0])
        
     })
     .catch(err => console.log(err))
     },
     createCity : (req,res)=>{
-        const {name, rating,  country_id} = req.body
+     const {name, rating, countryId} = req.body
+
         sequelize.query(`
         insert into cities(name, rating, country_id)
-        values('${name}', ${rating}, '${country_id}')
-        `) .then(dbRes => {
+        values('${name}', ${rating}, ${countryId});
+        `) .then((dbRes) => {
             res.status(200).send(dbRes[0])
             
         })
@@ -255,8 +256,9 @@ module.exports = {
     },
     getCities : (req,res)=>{
         sequelize.query(`
-        select c.city_id , c.name, c.rating, o.country_id, o.name from cities c
-        join countries o on c.country_id = o.country_id
+        select ci.city_id , ci.name as city, ci.rating, co.country_id, co.name as country from cities as ci
+        join countries as co on ci.country_id = co.country_id
+        order by rating desc;
         
         `)
         .then(dbRes => {
@@ -266,8 +268,9 @@ module.exports = {
         .catch(err => console.log(err))
     },
     deleteCity : (req,res)=>{
+        const {id} = req.params
         sequelize.query(`
-        drop * from table where city_id = ${city_id}
+        delete from cities where city_id = ${id};
         `).then(dbRes => {
             res.status(200).send(dbRes[0])
             
